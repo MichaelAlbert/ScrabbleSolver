@@ -15,6 +15,8 @@ class Trie:
             current_node.is_word = True
     
     def search(self, word):
+        """Returns the TrieNode corresponding to the last character of the word, 
+        or None if the word doesn't exist in the Trie."""
         current_node = self.root
         for char in word:
             if char not in current_node.children:
@@ -23,12 +25,14 @@ class Trie:
         return current_node
     
     def is_word(self, word) -> bool:
+        """Returns True if the word exists in the Trie, False otherwise."""
         node = self.search(word)
         if node is None:
             return False
         return node.is_word
     
-def word_list(path=str) -> Trie:
+def build_trie_from_file(path=str) -> Trie:
+    """Reads a list of words from given file and returns a Trie containing those words."""
     with open(path, 'r') as f:
         words = [line.strip() for line in f.readlines()]
     return Trie(words)
