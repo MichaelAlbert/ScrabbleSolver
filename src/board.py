@@ -51,7 +51,7 @@ class Board:
         self.multipliers = self.__init__multipliers()
 
     def __init__multipliers(self) -> list:
-        """Sets up multiplier representation on 15x15 grid."""
+        """Sets up multiplier representation layer on given grid."""
         multipliers = [[None]*self.size for _ in range(self.size)]
         for r,c in TRIPLE_WORD:
             multipliers[r][c] = "TW"
@@ -65,18 +65,21 @@ class Board:
     
     def load_board(self, board_state) -> None:
         """Loads a given board state into the grid.
-        board_state should be a list of 15 lists, each containing 15 sets:
+        board_state should be a list of 15 lists, each containing 15 sets (or Nones):
         (char, is_blank_tile) where char is the letter and is_blank_tile is a boolean."""
         self.validate_board_state(board_state)
         for r in range(self.size):
             for c in range(self.size):
-                char, is_blank_tile = board_state[r][c]
-                self.grid[r][c] = (char, is_blank_tile) if char else None
+                if board_state[r][c] is not None:
+                    char, is_blank_tile = board_state[r][c]
+                    self.grid[r][c] = (char, is_blank_tile)
+                else:
+                    self.grid[r][c] = None
     
     def validate_board_state(self, board_state) -> bool:
         """Validates board state size and cell formats."""
-        for r in range(board_state):
-            for c in range(board_state[r]):
+        for r in range(len(board_state)):
+            for c in range(len(board_state[r])):
                 if (r >= self.size) or (c >= self.size):
                     raise ValueError(f"Board state exceeds board dimensions at position ({r},{c}). Expected dimensions: {self.size}x{self.size}.")
                 if (board_state[r][c] is not None) and not (isinstance(board_state[r][c], tuple) and len(board_state[r][c]) == 2 and isinstance(board_state[r][c][0], str) and isinstance(board_state[r][c][1], bool)):
@@ -89,3 +92,68 @@ class Board:
                 if self.grid[r][c] is not None:
                     return False
         return True
+    
+    def find_anchors(self) -> set:
+        """Finds anchor points on the board.
+        An ancor point is an empty cell adjacent to an occupied cell, or the center if board is empty.
+        Returns a set of (row,col) tuples."""
+        if self.is_empty():
+            return {(7, 7)}
+        anchors = set()
+        for r in range(self.size):
+            for c in range(self.size):
+                # Case: not board edge cell
+                if self.grid[r][c] is not None and 0 < r < self.size - 1 and 0 < c < self.size - 1:
+                    for dr in [-1, 0, 1]:
+                        for dc in [-1, 0, 1]:
+                            if (dr != 0 or dc != 0) and self.grid[r+dr][c+dc] is None:
+                                anchors.add((r+dr, c+dc))
+                # Case: top edge, non corner cell
+                elif self.grid[r][c] is not None and r == 0 and 0 < c < self.size - 1:
+                    for dr in [0, 1]:
+                        for dc in [-1, 0, 1]:
+                            if (dr != 0 or dc != 0) and self.grid[r+dr][c+dc] is None:
+                                anchors.add((r+dr, c+dc))
+                # Case: bottom edge, non corner cell
+                elif self.grid[r][c] is not None and r == self.size - 1 and 0 < c < self.size - 1:
+                    for dr in [-1, 0]:
+                        for dc in [-1, 0, 1]:
+                            if (dr != 0 or dc != 0) and self.grid[r+dr][c+dc] is None:
+                                anchors.add((r+dr, c+dc))
+                # Case: left edge, non corner cell
+                elif self.grid[r][c] is not None and 0 < r < self.size - 1 and c == 0:
+                    for dr in [-1, 0, 1]:
+                        for dc in [0, 1]:
+                            if (dr != 0 or dc != 0) and self.grid[r+dr][c+dc] is None:
+                                anchors.add((r+dr, c+dc))
+                # Case: right edge, non corner cell
+                elif self.grid[r][c] is not None and 0 < r < self.size - 1 and c == self.size - 1:
+                    for dr in [-1, 0, 1]:
+                        for dc in [-1, 0]:
+                            if (dr != 0 or dc != 0) and self.grid[r+dr][c+dc] is None:
+                                anchors.add((r+dr, c+dc))
+                # Case: top left corner
+                elif self.grid[r][c] is not None and r == 0 and c == 0:
+                    for dr in [0, 1]:
+                        for dc in [0, 1]:
+                            if (dr != 0 or dc != 0) and self.grid[r+dr][c+dc] is None:
+                                anchors.add((r+dr, c+dc))
+                # Case: top right corner
+                elif self.grid[r][c] is not None and r == 0 and c == self.size - 1:
+                    for dr in [0, 1]:
+                        for dc in [-1, 0, 1]:
+                            if (dr != 0 or dc != 0) and self.grid[r+dr][c+dc] is None:
+                                anchors.add((r+dr, c+dc))
+                # Case: bottom left corner
+                elif self.grid[r][c] is not None and r == self.size - 1 and c == 0:
+                    for dr in [-1, 0]:
+                        for dc in [0, 1]:
+                            if (dr != 0 or dc != 0) and self.grid[r+dr][c+dc] is None:
+                                anchors.add((r+dr, c+dc))
+                # Case: bottom right corner
+                elif self.grid[r][c] is not None and r == self.size - 1 and c == self.size - 1:
+                    for dr in [-1, 0]:
+                        for dc in [-1, 0, 1]:
+                            if (dr != 0 or dc != 0) and self.grid[r+dr][c+dc] is None:
+                                anchors.add((r+dr, c+dc))
+        return anchors

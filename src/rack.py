@@ -1,9 +1,9 @@
 #Rack class for managing available letters, which includes blank tiles (represented by a '.').
 class Rack:
-    def __init__(self, letters):
-        self.letters = self.build_rack(letters)
+    def __init__(self):
+        self.letters = {}
           
-    def build_rack(self, letters) -> dict:
+    def fill_rack(self, letters) -> None:
         """Validates letters and accounts for blanks."""
         rack = {"letters": {}, "blanks": 0}
         for char in letters:
@@ -14,7 +14,7 @@ class Rack:
                 rack['blanks'] += 1
             else:
                 rack['letters'][char] = rack['letters'].get(char, 0) + 1
-        return rack
+        self.letters = rack
     
     def use_letter(self, char) -> set:
         """Attempts to use a rack letter. If empty, checks for blanks.

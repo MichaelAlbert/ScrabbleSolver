@@ -1,3 +1,5 @@
+from pathlib import Path
+
 class TrieNode:
     def __init__(self, is_word=False):
         self.children = {}
@@ -33,6 +35,8 @@ class Trie:
     
 def build_trie_from_file(path=str) -> Trie:
     """Reads a list of words from given file and returns a Trie containing those words."""
+    BASE_DIR = Path(__file__).resolve().parent
+    path = BASE_DIR.parent / "data" / path
     with open(path, 'r') as f:
-        words = [line.strip() for line in f.readlines()]
+        words = [line.strip().lower() for line in f.readlines()]
     return Trie(words)
