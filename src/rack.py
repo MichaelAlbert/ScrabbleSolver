@@ -32,3 +32,15 @@ class Rack:
             self.letters['blanks'] -= 1
             return (True, 'blank')
         return (False, None)
+    
+    def restore_letter(self, char, is_blank) -> None:
+        """Restores a letter to the rack after backtracking.
+        If is_blank is True, restores a blank tile. Otherwise restores the specific character."""
+        if is_blank:
+            self.letters['blanks'] += 1
+        else:
+            char = char.lower()
+            if char in self.letters['letters']:
+                self.letters['letters'][char] += 1
+            else:
+                self.letters['letters'][char] = 1

@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# A DAWG implementation would save space, but tries are simpler and modern computers can handle it just fine.
 class TrieNode:
     def __init__(self, is_word=False):
         self.children = {}
@@ -16,7 +17,7 @@ class Trie:
                 current_node = current_node.children[char]
             current_node.is_word = True
     
-    def search(self, word):
+    def search(self, word) -> TrieNode:
         """Returns the TrieNode corresponding to the last character of the word, 
         or None if the word doesn't exist in the Trie."""
         current_node = self.root
