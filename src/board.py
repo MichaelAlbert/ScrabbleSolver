@@ -1,12 +1,19 @@
-# Represents a 15x15 standard Scrabbble board.
+# Represents a 15x15 standard Scrabbble board or Crossplay board.
 
-TRIPLE_WORD = [
+TRIPLE_WORD_CLASSIC = [
     (0,0),(0,7),(0,14),
     (7,0),(7,14),
     (14,0),(14,7),(14,14)
 ]
 
-DOUBLE_WORD = [
+TRIPLE_WORD_CROSSPLAY = [
+    (0,3),(0,11),
+    (3,0),(3,14),
+    (11,0),(11,14),
+    (14,3),(14,11)
+]
+
+DOUBLE_WORD_CLASSIC = [
     (1,1),(2,2),(3,3),(4,4),
     (7,7),
     (10,10),(11,11),(12,12),(13,13),
@@ -14,14 +21,35 @@ DOUBLE_WORD = [
     (10,4),(11,3),(12,2),(13,1)
 ]
 
-TRIPLE_LETTER = [
+DOUBLE_WORD_CROSSPLAY = [
+    (1,1),(1,13),
+    (3,7),
+    (7,3),(7,11),
+    (11,7),
+    (13,1),(13,13)
+]
+
+TRIPLE_LETTER_CLASSIC = [
     (1,5),(1,9),
     (5,1),(5,5),(5,9),(5,13),
     (9,1),(9,5),(9,9),(9,13),
     (13,5),(13,9)
 ]
 
-DOUBLE_LETTER = [
+TRIPLE_LETTER_CROSSPLAY = [
+    (0,0),(0,14),
+    (1,6),(1,8),
+    (4,5),(4,9),
+    (5,4),(5,10),
+    (6,1),(6,13),
+    (8,1),(8,13),
+    (9,4),(9,10),
+    (10,5),(10,9),
+    (13,6),(13,8),
+    (14,0),(14,14)
+]
+
+DOUBLE_LETTER_CLASSIC = [
     (0,3),(0,11),
     (2,6),(2,8),
     (3,0),(3,7),(3,14),
@@ -33,7 +61,21 @@ DOUBLE_LETTER = [
     (14,3),(14,11)
 ]
 
-LETTER_VALUES = {
+DOUBLE_LETTER_CROSSPLAY = [
+    (0,7),
+    (2,4),(2,10),
+    (3,3),(3,11),
+    (4,2),(4,12),
+    (5,7),
+    (7,0),(7,5),(7,9),(7,14),
+    (9,7),
+    (10,2),(10,12),
+    (11,3),(11,11),
+    (12,4),(12,10),
+    (14,7)
+]
+
+LETTER_VALUES_CLASSIC = {
     "a": 1, "b": 3, "c": 3, "d": 2,
     "e": 1, "f": 4, "g": 2, "h": 4,
     "i": 1, "j": 8, "k": 5, "l": 1,
@@ -43,23 +85,52 @@ LETTER_VALUES = {
     "y": 4, "z": 10
 }
 
+LETTER_VALUES_CROSSPLAY = {
+    "a": 1, "b": 4, "c": 3, "d": 2,
+    "e": 1, "f": 4, "g": 4, "h": 3,
+    "i": 1, "j": 10, "k": 6, "l": 2,
+    "m": 3, "n": 1, "o": 1, "p": 3,
+    "q": 10, "r": 1, "s": 1, "t": 1,
+    "u": 2, "v": 6, "w": 5, "x": 8,
+    "y": 4, "z": 10
+}
+
 
 class Board:
-    def __init__(self):
+    def __init__(self, version="classic"):
         self.size = 15
         self.grid = [[None]*self.size for _ in range(self.size)]
-        self.multipliers = self.__init__multipliers()
+        self.TRIPLE_WORD = []
+        self.DOUBLE_WORD = []
+        self.TRIPLE_LETTER = []
+        self.DOUBLE_LETTER = []
+        self.LETTER_VALUES = {}
+        self.multipliers = self.__init__multipliers(version)
 
-    def __init__multipliers(self) -> list:
+    def __init__multipliers(self, version="classic") -> list:
         """Sets up multiplier representation layer on given grid."""
+        if version == "classic":
+            self.TRIPLE_WORD = TRIPLE_WORD_CLASSIC
+            self.DOUBLE_WORD = DOUBLE_WORD_CLASSIC
+            self.TRIPLE_LETTER = TRIPLE_LETTER_CLASSIC
+            self.DOUBLE_LETTER = DOUBLE_LETTER_CLASSIC
+            self.LETTER_VALUES = LETTER_VALUES_CLASSIC
+        
+        if version == "crossplay":
+            self.TRIPLE_WORD = TRIPLE_WORD_CROSSPLAY
+            self.DOUBLE_WORD = DOUBLE_WORD_CROSSPLAY
+            self.TRIPLE_LETTER = TRIPLE_LETTER_CROSSPLAY
+            self.DOUBLE_LETTER = DOUBLE_LETTER_CROSSPLAY
+            self.LETTER_VALUES = LETTER_VALUES_CROSSPLAY
+
         multipliers = [[None]*self.size for _ in range(self.size)]
-        for r,c in TRIPLE_WORD:
+        for r,c in self.TRIPLE_WORD:
             multipliers[r][c] = "TW"
-        for r,c in DOUBLE_WORD:
+        for r,c in self.DOUBLE_WORD:
             multipliers[r][c] = "DW"
-        for r,c in TRIPLE_LETTER:
+        for r,c in self.TRIPLE_LETTER:
             multipliers[r][c] = "TL"
-        for r,c in DOUBLE_LETTER:
+        for r,c in self.DOUBLE_LETTER:
             multipliers[r][c] = "DL"
         return multipliers
     

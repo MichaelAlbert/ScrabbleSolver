@@ -1,6 +1,6 @@
 from trie import build_trie_from_file, Trie
 from rack import Rack
-from board import Board, LETTER_VALUES
+from board import Board
 from copy import deepcopy
 
 class SolveState:
@@ -172,7 +172,7 @@ class SolveState:
                 if self.board.grid[r][c] is not None and self.board.grid[r][c][1]:
                     char_score = 0 # Blank tile
                 else:
-                    char_score = LETTER_VALUES[char] if char in LETTER_VALUES else 0
+                    char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
                 if (r, c) in multipliers and self.board.grid[r][c] is None: # Only apply multipliers to newly placed tiles
                     if multipliers[(r, c)] == 'DL':
                         char_score *= 2
@@ -190,7 +190,7 @@ class SolveState:
                 #print(f"Crossword found: {crossword}") # Debug
                 for i in range(len(crossword['word']) - 1, -1, -1):
                     char = crossword['word'][i]
-                    char_score = LETTER_VALUES[char] if char in LETTER_VALUES else 0
+                    char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
                     r = crossword['end'][0] - i * move['direction'][1]
                     c = crossword['end'][1] - i * move['direction'][0]
                     if (r, c) in multipliers and self.board.grid[r][c] is None: # Only apply multipliers to newly placed tiles
