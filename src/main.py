@@ -28,13 +28,14 @@ def main():
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
     ]
-    rack.fill_rack("char.ts")
+    rack.fill_rack("trains.")
     board.load_board(board_state)
 
     # Initialize solve state and find top 10 moves
     solve_state = SolveState(trie, rack, board)
+    solve_state.generate_moves()
     top_ten_moves = solve_state.find_top_moves(10)
-    print("Top 10 moves:", top_ten_moves)
+    solve_state.print_moves(top_ten_moves, 10)
 
 if __name__ == "__main__":
     main()

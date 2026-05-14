@@ -19,19 +19,19 @@ class Rack:
     def use_letter(self, char) -> set:
         """Attempts to use a rack letter. If empty, checks for blanks.
         Returns a set:
-        (True, 'char') if regular tile,
-        (True, 'blank') if blank tile.
-        (False, None) if neither available."""
+        (True, False) if regular tile,
+        (True, True) if blank tile.
+        (False, False) if neither available."""
         if not char.isalpha():
             raise ValueError(f"Using invalid character '{char}'. Only letters are allowed.")
         char = char.lower()
         if char in self.letters['letters'] and self.letters['letters'][char] > 0:
             self.letters['letters'][char] -= 1
-            return (True, 'char')
+            return (True, False)
         elif self.letters['blanks'] > 0:
             self.letters['blanks'] -= 1
-            return (True, 'blank')
-        return (False, None)
+            return (True, True)
+        return (False, False)
     
     def restore_letter(self, char, is_blank) -> None:
         """Restores a letter to the rack after backtracking.
