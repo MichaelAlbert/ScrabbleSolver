@@ -104,8 +104,7 @@ class SolveState:
         
         if len(word) == 1:
             return True
-        return self.dictionary.is_word(word)
-    
+        return self.dictionary.is_word(word) 
         
     def find_crosswords(self, move) -> list:
         """Finds any crosswords formed by a given move and checks their validity.
@@ -173,6 +172,7 @@ class SolveState:
                 else:
                     char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
                 if (r, c) in multipliers and self.board.grid[r][c] is None: # Only apply multipliers to newly placed tiles
+                    #print(f"word: {move['word']}, pos: {(r, c)}, multiplier: {multipliers[(r, c)]}, char: {char}") # Debug
                     if multipliers[(r, c)] == 'DL':
                         char_score *= 2
                     elif multipliers[(r, c)] == 'TL':
@@ -192,8 +192,6 @@ class SolveState:
                 cross_score = 0
                 cross_doubles = 0
                 cross_triples = 0
-                #print(f"Word: {move}") # Debug
-                #print(f"Crossword found: {crossword}") # Debug
                 for i in range(len(word) - 1, -1, -1):
                     char = word[i]
                     cross_char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
@@ -217,9 +215,6 @@ class SolveState:
                 score += cross_score
             move['score'] = score
             scored_moves.append(move)
-            #print(f"MOOOOOOOOOOVE: {move}") # Debug
-            #print(f"Score: {score}") # Debug")
-        #print("Scored moves:", scored_moves) #debug 
         return sorted(scored_moves, key=lambda x: x["score"], reverse=True)
     
     def find_limit(self, anchor, dr, dc) -> int:
