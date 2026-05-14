@@ -64,8 +64,8 @@ class SolveState:
                 cross = self.find_crosswords(move)
                 if cross == [-1]:
                     return # Invalid crossword found, skip move
-                if not self.move_touches_existing_tile(move):
-                    return # Skip moves that don't touch existing tiles
+                if not self.move_touches_existing_tile(move) and not self.board.is_empty():
+                    return 
                 move_key = self.move_key(move)
                 if move_key not in self.seen_moves:
                     self.seen_moves.add(move_key)
@@ -137,7 +137,7 @@ class SolveState:
 
             end = (r,c)
         
-            if self.dictionary.is_word(word):
+            if self.dictionary.is_word(word) and len(word) > 1:
                 crosswords.append({"word": word, "end": end})
         return crosswords
 
@@ -163,7 +163,6 @@ class SolveState:
                 #print(f"debug bad move: {move}") # Debug
                 continue
             multipliers = self.find_multipliers(move)
-            cross_score = 0
             score = 0
             for i in range(len(move['word']) - 1, -1, -1):
                 char = move['word'][i]
@@ -179,6 +178,8 @@ class SolveState:
                     elif multipliers[(r, c)] == 'TL':
                         char_score *= 3
                 score += char_score
+            #print(f"Move: {move}") # Debug
+            #print(f"multipliers:{multipliers}") # Debug
             for multiplier in multipliers.values():
                 if multiplier == 'DW':
                     score *= 2
@@ -186,27 +187,34 @@ class SolveState:
                     score *= 3
             #print(f"Base score for move {move}: {score}") # Debug
             for crossword in self.find_crosswords(move):
+                word = crossword['word']
+                end = crossword['end']
+                cross_score = 0
+                cross_doubles = 0
+                cross_triples = 0
                 #print(f"Word: {move}") # Debug
                 #print(f"Crossword found: {crossword}") # Debug
-                for i in range(len(crossword['word']) - 1, -1, -1):
-                    char = crossword['word'][i]
-                    char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
-                    r = crossword['end'][0] - i * move['direction'][1]
-                    c = crossword['end'][1] - i * move['direction'][0]
+                for i in range(len(word) - 1, -1, -1):
+                    char = word[i]
+                    cross_char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
+                    r = end[0] - i * move['direction'][1]
+                    c = end[1] - i * move['direction'][0]
                     if (r, c) in multipliers and self.board.grid[r][c] is None: # Only apply multipliers to newly placed tiles
                         if multipliers[(r, c)] == 'DL':
-                            char_score *= 2
+                            cross_char_score *= 2
                         elif multipliers[(r, c)] == 'TL':
-                            char_score *= 3
+                            cross_char_score *= 3
                     cross_score += char_score
-                if (r, c) in multipliers and self.board.grid[r][c] is None: # Only apply multipliers to newly placed tiles
-                    if multipliers[(r, c)] == 'DW':
-                        cross_score *= 2
-                    elif multipliers[(r, c)] == 'TW':
-                        cross_score *= 3
-                    score += cross_score
-                    cross_score = 0
-                    char_score = 0
+                    if (r, c) in multipliers and self.board.grid[r][c] is None: # Only apply multipliers to newly placed tiles
+                        if multipliers[(r, c)] == 'DW':
+                            cross_doubles += 1
+                        elif multipliers[(r, c)] == 'TW':
+                            cross_triples += 1
+                if cross_doubles > 0:
+                    cross_score *= 2 * cross_doubles
+                if cross_triples > 0:
+                    cross_score *= 3 * cross_triples
+                score += cross_score
             move['score'] = score
             scored_moves.append(move)
             #print(f"MOOOOOOOOOOVE: {move}") # Debug

@@ -41,6 +41,8 @@ Ensure python is installed locally.
 
 Clone the repository.
 
+Download a word list from a publically available source and put it under the data folder as words.txt
+
 In main.py (under src folder):
 - set either "classic" or "crossplay" for the version where Board() is called
 - change board_state to match your current board
