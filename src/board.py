@@ -95,6 +95,8 @@ LETTER_VALUES_CROSSPLAY = {
     "y": 4, "z": 10
 }
 
+CLASSIC_BONUS = 50
+CROSSPLAY_BONUS = 40
 
 class Board:
     def __init__(self, version="classic"):
@@ -105,6 +107,7 @@ class Board:
         self.TRIPLE_LETTER = []
         self.DOUBLE_LETTER = []
         self.LETTER_VALUES = {}
+        self.BONUS = CLASSIC_BONUS if version == "classic" else CROSSPLAY_BONUS
         self.multipliers = self.__init__multipliers(version)
 
     def __init__multipliers(self, version="classic") -> list:

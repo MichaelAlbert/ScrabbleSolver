@@ -158,13 +158,18 @@ class SolveState:
         Returns a list of moves sorted in descending order by score."""
         scored_moves = []
         for move in self.moves:
-            if self.find_crosswords(move) == [-1] or not self.validate_placed(move):
+            crosswords = self.find_crosswords(move)
+            # if move['word'] == "shaved": # Debug
+            #     print("\n====================") # Debug
+            #     print(move) # Debug
+            #     print("CROSSWORDS:", crosswords) # Debug
+            if crosswords == [-1] or not self.validate_placed(move):
                 #print(f"debug bad move: {move}") # Debug
                 continue
             multipliers = self.find_multipliers(move)
             score = 0
             for i in range(len(move['word']) - 1, -1, -1):
-                char = move['word'][i]
+                char = move['word'][len(move['word']) - 1 - i]
                 r = move['end'][0] - i * move['direction'][0]
                 c = move['end'][1] - i * move['direction'][1]
                 if self.board.grid[r][c] is not None and self.board.grid[r][c][1]:
@@ -172,7 +177,8 @@ class SolveState:
                 else:
                     char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
                 if (r, c) in multipliers and self.board.grid[r][c] is None: # Only apply multipliers to newly placed tiles
-                    #print(f"word: {move['word']}, pos: {(r, c)}, multiplier: {multipliers[(r, c)]}, char: {char}") # Debug
+                    # if move['word'] == "shaved": # Debug
+                    #     print(f"word: {move['word']}, pos: {(r, c)}, multiplier: {multipliers[(r, c)]}, char: {char}") # Debug
                     if multipliers[(r, c)] == 'DL':
                         char_score *= 2
                     elif multipliers[(r, c)] == 'TL':
@@ -186,14 +192,14 @@ class SolveState:
                 elif multiplier == 'TW':
                     score *= 3
             #print(f"Base score for move {move}: {score}") # Debug
-            for crossword in self.find_crosswords(move):
+            for crossword in crosswords:
                 word = crossword['word']
                 end = crossword['end']
                 cross_score = 0
                 cross_doubles = 0
                 cross_triples = 0
                 for i in range(len(word) - 1, -1, -1):
-                    char = word[i]
+                    char = word[len(word) - 1 - i]
                     cross_char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
                     r = end[0] - i * move['direction'][1]
                     c = end[1] - i * move['direction'][0]
@@ -202,7 +208,7 @@ class SolveState:
                             cross_char_score *= 2
                         elif multipliers[(r, c)] == 'TL':
                             cross_char_score *= 3
-                    cross_score += char_score
+                    cross_score += cross_char_score
                     if (r, c) in multipliers and self.board.grid[r][c] is None: # Only apply multipliers to newly placed tiles
                         if multipliers[(r, c)] == 'DW':
                             cross_doubles += 1
@@ -213,6 +219,8 @@ class SolveState:
                 if cross_triples > 0:
                     cross_score *= 3 * cross_triples
                 score += cross_score
+                if self.check_bonus(move):
+                    score += self.board.BONUS
             move['score'] = score
             scored_moves.append(move)
         return sorted(scored_moves, key=lambda x: x["score"], reverse=True)
@@ -330,3 +338,11 @@ class SolveState:
         c = move["end"][1] - (len(move["word"]) - 1) * move["direction"][1]
         move["start"] = (r, c)
         
+    def check_bonus(self, move) -> bool:
+        count = 0
+        for i in range(len(move['word'])):
+            r = move['start'][0] + i * move['direction'][0]
+            c = move['start'][1] + i * move['direction'][1]
+            if self.board.grid[r][c] is None:
+                count += 1
+        return count >= 7

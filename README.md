@@ -45,7 +45,7 @@ Download a word list from a publically available source and put it under the dat
 
 In main.py (under src folder):
 - set either "classic" or "crossplay" for the version where Board() is called
-- change board_state to match your current board
+- change board_state to match your current board; each placed letter should be (char, is_blank) where char is the letter and is_blank is either True or False
 - in rack.fill_rack() enter all letters in your rack. Blanks are represented as a period.
 
 

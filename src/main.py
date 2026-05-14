@@ -19,7 +19,7 @@ def main():
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
-        [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
+        [None,None,None,None,None,None,('t', False),('r', False),('a', True),('i', False),('n', False),None,None,None,None],
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
@@ -29,7 +29,7 @@ def main():
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
     ]
     rack.fill_rack("isevdah")
-    board.load_board(board_state)
+    board.load_board(board_state)                                                                                       
 
     # Initialize solve state and find top 10 moves
     solve_state = SolveState(trie, rack, board)
