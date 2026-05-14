@@ -36,6 +36,7 @@ def main():
     solve_state.generate_moves()
     top_ten_moves = solve_state.find_top_moves(10)
     solve_state.print_moves(top_ten_moves, 10)
+    board.print_board()
 
 if __name__ == "__main__":
     main()

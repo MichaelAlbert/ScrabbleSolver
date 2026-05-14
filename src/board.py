@@ -231,3 +231,21 @@ class Board:
                             if (dr != 0 or dc != 0) and self.grid[r+dr][c+dc] is None:
                                 anchors.add((r+dr, c+dc))
         return anchors
+    
+    def clear_board(self) -> None:
+        """Clears the board."""
+        for r in range(self.size):
+            for c in range(self.size):
+                self.grid[r][c] = None
+
+    def print_board(self) -> None:
+        """Prints the board."""
+        for r in range(self.size):
+            for c in range(self.size):
+                if self.grid[r][c] is None:
+                    print(".", end=" ")
+                else:
+                    print(self.grid[r][c][0], end=" ")
+            print()
+        print()
+
