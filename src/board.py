@@ -1,5 +1,7 @@
 # Represents a 15x15 standard Scrabbble board or Crossplay board.
 
+from copy import deepcopy
+
 TRIPLE_WORD_CLASSIC = [
     (0,0),(0,7),(0,14),
     (7,0),(7,14),
@@ -98,10 +100,12 @@ LETTER_VALUES_CROSSPLAY = {
 CLASSIC_BONUS = 50
 CROSSPLAY_BONUS = 40
 
+BOARD_SIZE = 15
+
 class Board:
     def __init__(self, version="classic"):
-        self.size = 15
-        self.grid = [[None]*self.size for _ in range(self.size)]
+        self.size = BOARD_SIZE
+        self.grid = [[None]*(self.size) for _ in range(self.size)]
         self.TRIPLE_WORD = []
         self.DOUBLE_WORD = []
         self.TRIPLE_LETTER = []
@@ -238,8 +242,17 @@ class Board:
             for c in range(self.size):
                 self.grid[r][c] = None
 
+    def update_board(self, new_board_state) -> None:
+        """Updates the board with a new board state."""
+        self.validate_board_state(new_board_state)
+        for r in range(self.size):
+            for c in range(self.size):
+                self.grid[r][c] = new_board_state[r][c]
+        
+
     def print_board(self) -> None:
         """Prints the board."""
+        print("\nCURRENT BOARD:")
         for r in range(self.size):
             for c in range(self.size):
                 if self.grid[r][c] is None:
@@ -249,3 +262,36 @@ class Board:
             print()
         print()
 
+    def preview_move(self, move) -> list:
+        """Previews a given move on the current board."""
+        print("\nBOARD PREVIEW:")
+        grid_copy = deepcopy(self.grid)
+        r = move['start'][0]
+        c = move['start'][1]
+        for i, char in enumerate(move['word']):
+            # if str(i) in move['blanks']: Fix once blank tracking works better
+            #     grid_copy[r][c] = (char, True)
+            # else: grid_copy[r][c] = (char, False)
+            grid_copy[r][c] = (char, False)
+            r += move['direction'][0]
+            c += move["direction"][1]
+        for r in range(self.size):
+            for c in range(self.size):
+                if grid_copy[r][c] is None:
+                    print(".", end=" ")
+                else:
+                    print(grid_copy[r][c][0], end=" ")
+            print()
+        print()
+
+
+    def place_move(self, move) -> None:
+        """Places a given move onto the current board."""
+        r = move['start'][0]
+        c = move['start'][1]
+        for i, char in enumerate(move['word']):
+                if str(i) in move['blanks']:
+                    self.grid[r][c] = (char, True)
+                else: self.grid[r][c] = (char, False)
+                r += move['direction'][0]
+                c += move["direction"][1]

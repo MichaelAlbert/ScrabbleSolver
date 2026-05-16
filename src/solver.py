@@ -3,6 +3,8 @@ from rack import Rack
 from board import Board
 from copy import deepcopy
 
+#TO DO: blank placement optimization, e.g. when blank is same letter as another
+
 class SolveState:
     def __init__(self, dictionary: Trie, rack: Rack, board: Board):
         self.dictionary = dictionary
@@ -56,6 +58,10 @@ class SolveState:
         Similar parameters as left_part but without limit."""
         r, c = cell
         # Bounds check
+        
+        # if r == 9 and c == 9 and dr == 1 and dc ==0: # debug
+        #     print(partial_word) # debug
+
         if not (0 <= r < self.board.size and 0 <= c < self.board.size):
             return
         if self.board.grid[r][c] is None:
@@ -71,9 +77,11 @@ class SolveState:
                     self.seen_moves.add(move_key)
                     self.moves.append(move)
             for char in node.children:
+                next_node = node.children[char]
+
                 used_char, is_blank = rack.use_letter(char)
                 if used_char:
-                    self.extend_right(partial_word + char, node.children[char], (cell[0] + dr, cell[1] + dc), rack, dr, dc)
+                    self.extend_right(partial_word + char, next_node, (cell[0] + dr, cell[1] + dc), rack, dr, dc)
                     rack.restore_letter(char, is_blank)
 
         else:
@@ -158,6 +166,7 @@ class SolveState:
         Returns a list of moves sorted in descending order by score."""
         scored_moves = []
         for move in self.moves:
+            rack = deepcopy(self.rack)
             crosswords = self.find_crosswords(move)
             # if move['word'] == "shaved": # Debug
             #     print("\n====================") # Debug
@@ -176,6 +185,8 @@ class SolveState:
                     char_score = 0 # Blank tile
                 else:
                     char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
+                if rack.use_letter(char)[1]:
+                    char_score = 0
                 if (r, c) in multipliers and self.board.grid[r][c] is None: # Only apply multipliers to newly placed tiles
                     # if move['word'] == "shaved": # Debug
                     #     print(f"word: {move['word']}, pos: {(r, c)}, multiplier: {multipliers[(r, c)]}, char: {char}") # Debug
@@ -222,6 +233,8 @@ class SolveState:
                 if self.check_bonus(move):
                     score += self.board.BONUS
             move['score'] = score
+            # if move['start'] == (8,9) and move['direction'] == (1,0): # debug
+            #     print(move['word']) # debug
             scored_moves.append(move)
         return sorted(scored_moves, key=lambda x: x["score"], reverse=True)
     
@@ -232,8 +245,10 @@ class SolveState:
         # Ignore anchor cell
         r -= dr
         c -= dc
-        while 1 <= r < self.board.size and 1 <= c < self.board.size and self.board.grid[r][c] is None:
-            limit += 1
+        while 0 <= r < self.board.size and 0 <= c < self.board.size and self.board.grid[r][c] is None:
+            if (r,c) not in self.board.find_anchors():
+                limit += 1
+                break
             r -= dr
             c -= dc
         #print(limit) # Debug
@@ -263,8 +278,8 @@ class SolveState:
         return False
     
     def print_moves(self, moves, n) -> None:
-        print(f"Top {n} Moves:")
-        print("-" * 50)
+        print(f"\nTop {n} Moves:")
+        print("-" * 60)
         for i, m in enumerate(moves, 1):
             print(
                 f"{i:2d}. {m['word']:<10} "
@@ -273,6 +288,7 @@ class SolveState:
                 f"End: {m['end']} "
                 f"Dir: {m['direction']}"
             )
+        print("-" * 60)
     
     def move_key(self, move) -> tuple:
         """

@@ -1,9 +1,12 @@
 Author: Michael Albert
+
 Credit to Appel and Jacobson for the core algorithm (https://www.cs.cmu.edu/afs/cs/academic/class/15451-s06/www/lectures/scrabble.pdf)
+
+Word list used: ENABLE (https://norvig.com/ngrams/enable1.txt)
 
 This is a personal project of mine. I play Scrabble a lot, and thought it would be fun to write something that could give me the top 10 scoring plays when I'm stuck. This is not intended for use in any competitive play, and is intended only as a fun challenge to myself.
 
-#ScrabbleSolver
+# ScrabbleSolver
 
 A Scrabble move generation and scoring engine that analyzes a board state and a tile rack to compute the highest-scoring legal moves using a trie-based dictionary and crossword validation. No strategy is taken into account.
 
@@ -40,8 +43,6 @@ No external libraries are required.
 Ensure python is installed locally.
 
 Clone the repository.
-
-Download a word list from a publically available source and put it under the data folder as words.txt
 
 In main.py (under src folder):
 - set either "classic" or "crossplay" for the version where Board() is called
