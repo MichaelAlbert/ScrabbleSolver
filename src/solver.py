@@ -62,7 +62,7 @@ class SolveState:
         # if r == 9 and c == 9 and dr == 1 and dc ==0: # debug
         #     print(partial_word) # debug
 
-        if not (0 <= r < self.board.size and 0 <= c < self.board.size):
+        if not (0 <= r <= self.board.size and 0 <= c <= self.board.size):
             return
         if self.board.grid[r][c] is None:
             if node.is_word:
@@ -81,6 +81,8 @@ class SolveState:
 
                 used_char, is_blank = rack.use_letter(char)
                 if used_char:
+                    # move = {"word": partial_word, "score": 0, "end": (cell[0], cell[1]), "direction": (dr,dc)}
+                    # self.moves.append(move)
                     self.extend_right(partial_word + char, next_node, (cell[0] + dr, cell[1] + dc), rack, dr, dc)
                     rack.restore_letter(char, is_blank)
 
@@ -135,6 +137,7 @@ class SolveState:
                 word = self.board.grid[rr][cc][0] + word # Prepend existing letter to word
                 rr -= pr
                 cc -= pc
+            start = (rr + pr,cc + pc)
             rr, cc = r + pr, c + pc
             while 0 <= rr < self.board.size and 0 <= cc < self.board.size and self.board.grid[rr][cc] is not None:
                 word += self.board.grid[rr][cc][0] # Append existing letter to word
@@ -145,7 +148,7 @@ class SolveState:
             end = (r,c)
         
             if self.dictionary.is_word(word) and len(word) > 1:
-                crosswords.append({"word": word, "end": end})
+                crosswords.append({"word": word, "start": start, "end": end})
         return crosswords
 
     def find_multipliers(self, move) -> dict:
@@ -168,7 +171,8 @@ class SolveState:
         for move in self.moves:
             rack = deepcopy(self.rack)
             crosswords = self.find_crosswords(move)
-            # if move['word'] == "shaved": # Debug
+            placements = self.find_placements(move)
+            # if move['word'] == "bosh": # Debug
             #     print("\n====================") # Debug
             #     print(move) # Debug
             #     print("CROSSWORDS:", crosswords) # Debug
@@ -178,6 +182,7 @@ class SolveState:
             multipliers = self.find_multipliers(move)
             score = 0
             for i in range(len(move['word']) - 1, -1, -1):
+                
                 char = move['word'][len(move['word']) - 1 - i]
                 r = move['end'][0] - i * move['direction'][0]
                 c = move['end'][1] - i * move['direction'][1]
@@ -194,6 +199,9 @@ class SolveState:
                         char_score *= 2
                     elif multipliers[(r, c)] == 'TL':
                         char_score *= 3
+                # if move['word'] == "bosh": # debug
+                #     print(f"char: {char}, pos: {(r,c)}, char_score:{char_score}, score:{score}") # debug
+                        
                 score += char_score
             #print(f"Move: {move}") # Debug
             #print(f"multipliers:{multipliers}") # Debug
@@ -204,16 +212,25 @@ class SolveState:
                     score *= 3
             #print(f"Base score for move {move}: {score}") # Debug
             for crossword in crosswords:
+                pr = move['direction'][1]
+                pc = move['direction'][0]
                 word = crossword['word']
                 end = crossword['end']
+                start = crossword['start']
                 cross_score = 0
                 cross_doubles = 0
                 cross_triples = 0
-                for i in range(len(word) - 1, -1, -1):
-                    char = word[len(word) - 1 - i]
-                    cross_char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
-                    r = end[0] - i * move['direction'][1]
-                    c = end[1] - i * move['direction'][0]
+                # if word == "bos": # debug
+                #     print(crossword) # debug
+                for i in range(len(word)):
+                    char = word[i]
+                    r = start[0] + i * pr
+                    c = start[1] + i * pc
+                    if (self.board.grid[r][c] is not None and self.board.grid[r][c][1]):
+                        cross_char_score = 0
+                    else: cross_char_score = self.board.LETTER_VALUES[char] if char in self.board.LETTER_VALUES else 0
+                    if (r,c) in placements.keys() and placements[(r,c)][1]:
+                        cross_char_score = 0
                     if (r, c) in multipliers and self.board.grid[r][c] is None: # Only apply multipliers to newly placed tiles
                         if multipliers[(r, c)] == 'DL':
                             cross_char_score *= 2
@@ -225,6 +242,8 @@ class SolveState:
                             cross_doubles += 1
                         elif multipliers[(r, c)] == 'TW':
                             cross_triples += 1
+                    # if move['word'] == "bosh": # debug
+                    #     print(f"char: {char}, pos: {(r,c)}, char_score: {cross_char_score}, cross_score: {cross_score}") # debug
                 if cross_doubles > 0:
                     cross_score *= 2 * cross_doubles
                 if cross_triples > 0:
@@ -362,3 +381,18 @@ class SolveState:
             if self.board.grid[r][c] is None:
                 count += 1
         return count >= 7
+    
+    def find_placements(self, move) -> dict:
+        rack = deepcopy(self.rack)
+        r,c = move['start']
+        placements = {}
+        dr, dc = move['direction']
+        for char in move['word']:
+            if self.board.grid[r][c] is None:
+                _, is_blank = rack.use_letter(char)
+                placements[(r,c)] = (char, is_blank)
+            else:
+                placements[(r,c)] = self.board.grid[r][c]
+            r += dr
+            c += dc
+        return placements

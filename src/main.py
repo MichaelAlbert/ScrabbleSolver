@@ -21,14 +21,14 @@ def main():
         [None,None,None,None,None,None,None,('t', False),None,None,('u', False),None,None,None,None],
         [None,None,None,None,None,None,('s', False),('h', False),('a', False),('v', False),('e', False),('d', False),None,None,None],
         [None,None,None,None,None,None,None,('i', False),None,None,('e', False),None,None,None,None],
-        [None,None,None,None,None,None,None,('t', False),None,None,('n', False),None,None,None,None],
-        [None,None,None,None,None,None,('c', False),('h', False),('a', False),('w', False),('s', False),None,None,None,None],
-        [None,None,None,None,None,('s', True),None,('e', False),None,None,None,None,None,None,None],
+        [None,None,None,None,('z', False),None,None,('t', False),None,None,('n', False),None,None,None,None],
+        [None,None,None,None,('o', False),None,('c', False),('h', False),('a', False),('w', False),('s', False),None,None,None,None],
+        [None,None,None,None,('o', False),('s', True),None,('e', False),None,None,None,None,None,None,None],
         [None,None,None,None,None,('w', False),('a', False),('r', False),None,None,None,None,None,None,None],
-        [None,None,None,None,None,('a', False),('x', False),None,None,None,None,None,None,None,None],
+        [None,('k', False),('i', False),('s', False),None,('a', False),('x', False),None,None,None,None,None,None,None,None],
         [None,None,('t', False),('h', False),('e', False),('m', False),('e', False),None,None,None,None,None,None,None,None],
     ]
-    rack.fill_rack("to.waio")
+    rack.fill_rack("torbeio")
     board.load_board(board_state)                                                                                       
 
     # Initialize solve state and find top 10 moves

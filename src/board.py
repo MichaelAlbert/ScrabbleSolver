@@ -105,7 +105,7 @@ BOARD_SIZE = 15
 class Board:
     def __init__(self, version="classic"):
         self.size = BOARD_SIZE
-        self.grid = [[None]*(self.size) for _ in range(self.size)]
+        self.grid = [[None]*(self.size + 1) for _ in range(self.size + 1)]
         self.TRIPLE_WORD = []
         self.DOUBLE_WORD = []
         self.TRIPLE_LETTER = []
