@@ -5,7 +5,8 @@ from trie import build_trie_from_file, Trie
 
 def main():
     # Initialize board, rack, and trie
-    board = Board("crossplay")
+    version = input("Are you playing classic or crossplay? (classic/crossplay): ").lower()
+    board = Board(version)
     rack = Rack()
     trie = build_trie_from_file("words.txt")
 
