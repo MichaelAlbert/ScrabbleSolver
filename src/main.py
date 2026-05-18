@@ -10,7 +10,7 @@ def main():
     trie = build_trie_from_file("words.txt")
 
     # Example board and rack setup
-    # Will be replaced by actual input handling
+    # Currently using this for my own game and some testing
     board_state = [
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
         [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None],
@@ -28,9 +28,10 @@ def main():
         [None,('k', False),('i', False),('s', False),None,('a', False),('x', False),None,None,None,None,None,None,None,None],
         [None,None,('t', False),('h', False),('e', False),('m', False),('e', False),None,None,None,None,None,None,None,None],
     ]
-    rack.fill_rack("torbeio")
-    board.load_board(board_state)                                                                                       
-
+    # rack.fill_rack("torbeio") This line loads above rack
+    rack.fill_rack_from_input() # This line loads rack from user input
+    # board.load_board(board_state)   # This line loads the above board                                                                                    
+    board.load_board_from_input() # This line loads board from user input
     # Initialize solve state and find top 10 moves
     solve_state = SolveState(trie, rack, board)
     solve_state.generate_moves()

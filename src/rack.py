@@ -16,6 +16,23 @@ class Rack:
                 rack['letters'][char] = rack['letters'].get(char, 0) + 1
         self.letters = rack
     
+    def fill_rack_from_input(self) -> None:
+        """Fills rack from user input."""
+        while True:
+            print("Please enter the tiles on your rack. Represent blanks with a period: ")
+            letters = input().strip().lower()
+            if len(letters) > 7:
+                print("Rack cannot exceed 7 tiles. Please try again.")
+                continue
+            for char in letters:
+                if char != '.' and not char.isalpha():
+                    print("At least one tile entered incorrectly. Letters and periods only please.")
+                    break
+            else:
+                break
+        self.fill_rack(letters)
+    
+
     def use_letter(self, char) -> set:
         """Attempts to use a rack letter. If empty, checks for blanks.
         Returns a set:

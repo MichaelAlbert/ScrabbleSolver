@@ -295,3 +295,64 @@ class Board:
                 else: self.grid[r][c] = (char, False)
                 r += move['direction'][0]
                 c += move["direction"][1]
+
+    def load_board_from_input(self) -> None:
+        """Loads a board from user input."""
+        print("\nPreparing to load board. Remember: a period '.' is an empty square, \nwhile a dash '-' represents a blank tile (e.g. 'a-')")
+        print("Also remember: (0,0) represents the top left corner of the board.")
+        r = 0
+        c = 0
+        while r < self.size:
+            while True:
+                print(f"\nWhole row (row {r} out of {self.size -1}, starting at 0) empty? y/n: ")
+                print("Type 'back' to go back one.")
+                ans = input().strip().lower()
+                if ans.isalpha():
+                    if ans == 'y' or ans == 'yes':
+                        for i in range(self.size):
+                            self.grid[r][i] = None
+                        r += 1
+                        continue
+                    elif ans == 'n' or ans == 'no':
+                        break
+                    elif ans == 'back' and r > 0:
+                        r -= 1
+                        continue
+                    elif ans == 'back':
+                        print("Cannot exceed board size.")
+                    else:
+                        print("Invalid input. Please type y for yes or n for no.")
+                else:
+                    print("Invalid input. Please try again.")
+            while c < self.size:
+                while True:
+                    print(f"\nPlease input the tile located at {r,c}. Blanks look like letters followed by a dash (e.g. a-)")
+                    print("Type 'back' to go back one.")
+                    tile = input().strip().lower()
+                    if tile == '.':
+                        self.grid[r][c] = None
+                        c += 1
+                        break
+                    elif len(tile) == 2 and tile[0].isalpha() and tile[1]== '-':
+                        self.grid[r][c] = (tile[0], True)
+                        c += 1
+                        break
+                    elif len(tile) == 1 and tile[0].isalpha():
+                        self.grid[r][c] = (tile, False)
+                        c += 1
+                        break
+                    elif tile == 'back':
+                        if c == 0 and r == 0:
+                            print("Cannot exceed board size.")
+                            continue
+                        if c == 0:
+                            r -= 1
+                            c = self.size - 1
+                            continue
+                        c -= 1
+                        continue
+                    else:
+                        print("Invalid input. Please try again.")
+            r += 1
+            c = 0
+        print("Board loaded.")
